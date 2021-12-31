@@ -143,7 +143,8 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+
+  return ~(~(x & ~y) & ~(~x & y));
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -153,8 +154,7 @@ int bitXor(int x, int y) {
  */
 int tmin(void) {
 
-  return 2;
-
+  return 1 << 31;
 }
 //2
 /*
@@ -165,8 +165,14 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  int i = x + 1;
+  x = x + i;
+  x = ~x;
+  i=!i;//exclude x=0xffff...
+  x=x+i;//exclude x=0xffff...
+  return !x;
 }
+
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
  *   where bits are numbered from 0 (least significant) to 31 (most significant)
@@ -176,8 +182,10 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  int odd = 0xAA + (0xAA << 8) + (0xAA << 16) + (0xAA << 24);
+  return !((odd&x)^odd);
 }
+
 /* 
  * negate - return -x 
  *   Example: negate(1) = -1.
@@ -186,8 +194,9 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1;
 }
+
 //3
 /* 
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
@@ -199,8 +208,11 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  int tMax = 1 << 31;
+  // (lower+x+1)>>31 & (higher+x)>>31
+  return !(((~0x30+x+1)>>31) | ((~(tMax|0x39)+x)>>31));
 }
+
 /* 
  * conditional - same as x ? y : z 
  *   Example: conditional(2,4,5) = 4
@@ -209,8 +221,11 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  x = !!x;
+  x = ~x + 1;
+  return ((x&y)|(~x&z));
 }
+  
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
  *   Example: isLessOrEqual(4,5) = 1.
@@ -219,8 +234,13 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  int negate = ~y+1;
+  int sum = x+negate;
+  int neg_over = (x >> 31) & (negate >> 31) & !(sum >> 31);
+  int pos_over = !(x >> 31) & !(negate >> 31) & (sum >> 31);
+  return ;
 }
+
 //4
 /* 
  * logicalNeg - implement the ! operator, using all of 
