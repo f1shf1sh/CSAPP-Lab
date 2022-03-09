@@ -20,8 +20,85 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
  *     be graded. 
  */
 char transpose_submit_desc[] = "Transpose submission";
-void transpose_submit(int M, int N, int A[N][M], int B[M][N])
-{
+void transpose_submit(int M, int N, int A[N][M], int B[M][N]) {
+    int i, j, k, l;
+    int v1, v2, v3, v4, v5, v6, v7, v8;
+    if (N == 32) {
+        for (i = 0; i < N; i += 8) {
+            for (j = 0; j < M; j += 8) {
+                for (k = i; k < i + 8; ++k) {
+//                    for (v1 = j; v1 < j + 8; ++v1) {
+//                        B[v1][k] = A[k][v1];
+//                    }
+                    v1 = A[k][j + 0];
+                    v2 = A[k][j + 1];
+                    v3 = A[k][j + 2];
+                    v4 = A[k][j + 3];
+                    v5 = A[k][j + 4];
+                    v6 = A[k][j + 5];
+                    v7 = A[k][j + 6];
+                    v8 = A[k][j + 7];
+                    B[j + 0][k] = v1;
+                    B[j + 1][k] = v2;
+                    B[j + 2][k] = v3;
+                    B[j + 3][k] = v4;
+                    B[j + 4][k] = v5;
+                    B[j + 5][k] = v6;
+                    B[j + 6][k] = v7;
+                    B[j + 7][k] = v8;
+                }
+            }
+        }
+    }
+    else if (N == 4) {
+        for (i = 0; i < N; i+=2) {
+            v1 = A[i][0];
+            v2 = A[i][1];
+            v3 = A[i][2];
+            v4 = A[i][3];
+            v5 = A[i+1][0];
+            v6 = A[i+1][1];
+            v7 = A[i+1][2];
+            v8 = A[i+1][3];
+            B[0][i] = v1;
+            B[1][i] = v2;
+            B[2][i] = v3;
+            B[3][i] = v4;
+            B[0][i+1] = v5;
+            B[1][i+1] = v6;
+            B[2][i+1] = v7;
+            B[3][i+1] = v8;
+        }
+    }
+    else if (N == 64) {
+        for (i = 0; i < N; i += 4) {
+            for (j = 0; j < M; j += 4) {
+                for (k = i; k < i + 4; ++k) {
+                    v1 = A[k][j+0];
+                    v2 = A[k][j+1];
+                    v3 = A[k][j+2];
+                    v4 = A[k][j+3];
+
+                    B[j+0][k] = v1;
+                    B[j+1][k] = v2;
+                    B[j+2][k] = v3;
+                    B[j+3][k] = v4;
+                }
+            }
+        }
+    }
+    else if (N == 67) {
+        for (i = 0; i < N; i += 17) {
+            for (j = 0; j < M; j += 17) {
+                for (k = i; k < N && k < i + 17; ++k) {
+                    for (l = j; l < M && l < j + 17; ++l) {
+                        v1 = A[k][l];
+                        B[l][k] = v1;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* 
